@@ -43,7 +43,7 @@ func init() {
 		}
 	}
 	fmt.Println("shadowShare分享的订阅地址:", global.Subscribes)
-
+	global.Subscribes["mianfeifq"] = "https://raw.fastgit.org/mianfeifq/share/main/data2023036.txt"
 }
 
 func initFlag() {

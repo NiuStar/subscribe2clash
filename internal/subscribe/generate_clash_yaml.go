@@ -32,6 +32,9 @@ func (c *Clash) LoadTemplate() []byte {
 
 	for _, proto := range c.rawProxies {
 		o := reflect.ValueOf(proto).Elem()
+		if !o.IsValid() {
+			continue
+		}
 		nameField := o.FieldByName("Name")
 		proxy := make(map[string]any)
 		j, _ := json.Marshal(proto)
