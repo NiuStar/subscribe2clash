@@ -1,11 +1,11 @@
 package api
 
 import (
-	"github.com/icpd/subscribe2clash/internal/global"
+	"subscribe2clash/model"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/icpd/subscribe2clash/internal/clash"
+	"subscribe2clash/internal/clash"
 )
 
 const key = "link"
@@ -45,13 +45,37 @@ func (cc *ClashController) Self(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	links := global.Subscribes[linksName]
-	if linksName == "" {
+	sub, err := model.GetSubscribeByShortCode(linksName)
+	if err != nil {
 		c.String(http.StatusBadRequest, key+"值为空")
 		c.Abort()
 		return
 	}
-	config, err := clash.Config(clash.Url, links)
+
+	config, err := clash.Config(clash.Url, sub.SubscribeURL)
+	if err != nil {
+		c.String(http.StatusInternalServerError, err.Error())
+		c.Abort()
+		return
+	}
+
+	c.String(http.StatusOK, config)
+}
+
+func (cc *ClashController) Nodes(c *gin.Context) {
+
+	nodes, err := model.GetAllNodes()
+	if err != nil {
+		c.String(http.StatusBadRequest, key+"值为空")
+		c.Abort()
+		return
+	}
+
+	urls := make([]string, 0)
+	for _, node := range nodes {
+		urls = append(urls, node.Address)
+	}
+	config, err := clash.Nodes(urls)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		c.Abort()

@@ -8,9 +8,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/icpd/subscribe2clash/constant"
-	"github.com/icpd/subscribe2clash/internal/global"
-	"github.com/icpd/subscribe2clash/internal/req"
+	"subscribe2clash/constant"
+	"subscribe2clash/internal/global"
+	"subscribe2clash/internal/req"
 )
 
 func init() {

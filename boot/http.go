@@ -10,8 +10,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/icpd/subscribe2clash/app/router"
-	"github.com/icpd/subscribe2clash/internal/global"
+	"subscribe2clash/app/router"
+	"subscribe2clash/internal/global"
 )
 
 func initHttpServer() {

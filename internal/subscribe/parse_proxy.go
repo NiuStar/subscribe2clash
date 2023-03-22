@@ -5,7 +5,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"github.com/icpd/subscribe2clash/internal/xbase64"
+	"subscribe2clash/internal/xbase64"
 	"log"
 	"net/url"
 	"regexp"

@@ -6,8 +6,8 @@ import (
 	"strings"
 	"unsafe"
 
-	"github.com/icpd/subscribe2clash/internal/req"
-	"github.com/icpd/subscribe2clash/internal/xbase64"
+	"subscribe2clash/internal/req"
+	"subscribe2clash/internal/xbase64"
 )
 
 func GetRawProxiesFromLinks(links string) ([]string, error) {

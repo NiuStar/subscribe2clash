@@ -7,7 +7,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/icpd/subscribe2clash/internal/acl"
+	"subscribe2clash/internal/acl"
 	"gopkg.in/yaml.v3"
 )
 

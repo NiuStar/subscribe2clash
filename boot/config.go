@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/icpd/subscribe2clash/internal/acl"
-	"github.com/icpd/subscribe2clash/internal/clash"
-	"github.com/icpd/subscribe2clash/internal/global"
+	"subscribe2clash/internal/acl"
+	"subscribe2clash/internal/clash"
+	"subscribe2clash/internal/global"
 )
 
 func generateConfig() {

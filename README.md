@@ -1,14 +1,14 @@
 <h1 align="center">
-  <img src="https://github.com/icpd/subscribe2clash/raw/master/subscribe2clash.png" alt="Clash" width="350">
+  <img src="https://subscribe2clash/raw/master/subscribe2clash.png" alt="Clash" width="350">
 </h1>
 
 
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/icpd/subscribe2clash">
-    <img src="https://goreportcard.com/badge/github.com/icpd/subscribe2clash">
+  <a href="https://goreportcard.com/report/subscribe2clash">
+    <img src="https://goreportcard.com/badge/subscribe2clash">
   </a>
   <img src="https://img.shields.io/github/go-mod/go-version/Dreamacro/clash?style=flat-square">
-  <a href="https://github.com/icpd/subscribe2clash/releases">
+  <a href="https://subscribe2clash/releases">
     <img src="https://img.shields.io/github/release/icpd/subscribe2clash/all.svg">
   </a>
 </p>
@@ -26,14 +26,14 @@ Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4S
 
 ### 二进制
 
-- [release](https://github.com/icpd/subscribe2clash/releases)下载对应的版本
+- [release](https://subscribe2clash/releases)下载对应的版本
 - 解压后执行`./subscribe2clash`
 - 访问http://localhost:8162/?link=你的订阅链接
 
 ### 源码编译
 
 - 安装Go 1.20+
-- `go get github.com/icpd/subscribe2clash`
+- `go get subscribe2clash`
 - 进入项目根目录
 - 执行 `make build`
 
@@ -53,13 +53,13 @@ Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4S
 ### web服务
 启动一个 HTTP 服务，访问 http://localhost:8162/?link=你的订阅链接 即可获取 Clash 配置。
 
-- 指定自定义基础配置文件，可在里面添加自定义的路由规则，程序将按照这个文件写入路由信息。可参考[internal/acl/config/default_base_config.yaml](https://github.com/icpd/subscribe2clash/blob/master/internal/acl/config/default_base_config.yaml) ，`{{.}}`将被程序替换为ACL的路由规则。
+- 指定自定义基础配置文件，可在里面添加自定义的路由规则，程序将按照这个文件写入路由信息。可参考[internal/acl/config/default_base_config.yaml](https://subscribe2clash/blob/master/internal/acl/config/default_base_config.yaml) ，`{{.}}`将被程序替换为ACL的路由规则。
 
   ```
   ./subscribe2clash -b ./yourfile.yaml
   ```
 
-- 指定自定义碎片路由配置文件，可在该配置文件中自定义添加ACL碎片规则文件。可参考[internal/acl/config/default_rules.ini](https://github.com/icpd/subscribe2clash/blob/master/internal/acl/config/default_rules.ini)
+- 指定自定义碎片路由配置文件，可在该配置文件中自定义添加ACL碎片规则文件。可参考[internal/acl/config/default_rules.ini](https://subscribe2clash/blob/master/internal/acl/config/default_rules.ini)
 
   ```
   ./subscribe2clash -r ./yourfile.ini
