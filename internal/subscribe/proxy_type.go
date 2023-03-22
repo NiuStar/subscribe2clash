@@ -130,3 +130,15 @@ type Trojan struct {
 	Port           string `json:"port"`
 	SkipCertVerify bool   `json:"skip-cert-verify"`
 }
+
+type Https struct {
+	Name           string `json:"name"`
+	Type           string `json:"type"`
+	Server         string `json:"server"`
+	UserName       string `json:"username"`
+	Password       string `json:"password"`
+	Sni            string `json:"sni,omitempty"`
+	Tls            bool   `json:"tls,omitempty"`
+	Port           string `json:"port"`
+	SkipCertVerify bool   `json:"skip-cert-verify"`
+}

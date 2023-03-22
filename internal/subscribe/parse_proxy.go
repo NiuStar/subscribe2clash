@@ -3,14 +3,15 @@ package subscribe
 import (
 	"alicode.yjkj.ink/yjkj.ink/work/utils/uuid"
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"subscribe2clash/internal/xbase64"
 	"log"
 	"net/url"
 	"regexp"
 	"strconv"
 	"strings"
+	"subscribe2clash/internal/xbase64"
 )
 
 const (
@@ -18,14 +19,20 @@ const (
 	vmessPrefix  = "vmess://"
 	ssPrefix     = "ss://"
 	trojanPrefix = "trojan://"
+	httpsPrefix  = "https://"
+	httpPrefix   = "http://"
 )
 
 var (
 	//ssReg      = regexp.MustCompile(`(?m)ss://(\w+)@([^:]+):(\d+)\?plugin=([^;]+);\w+=(\w+)(?:;obfs-host=)?([^#]+)?#(.+)`)
-	ssReg2 = regexp.MustCompile(`(?m)ss://([\-0-9a-z]+):(.+)@(.+):(\d+)(.+)?#(.+)`)
-	ssReg  = regexp.MustCompile(`(?m)ss://([/+=\w]+)(@.+)?#(.+)`)
+	ssReg2 = regexp.MustCompile(`(.+):(.+)@(.+):(\d+)`)
+	//ssReg2 = regexp.MustCompile(`(?m)^ss://(.+):(.+)@(.+):(\d+)\?(.+)#(.+)$`)
+
+	ssReg = regexp.MustCompile(`(?m)^ss://(.+)\?(.+)#(.+)$`)
 
 	trojanReg = regexp.MustCompile(`(?m)^trojan://(.+)@(.+):(\d+)\?(.+)#(.+)$`)
+
+	httpsReg = regexp.MustCompile(`(.+):(.+)@(.+):(\d+)`)
 )
 
 func ParseProxy(contentSlice []string) []any {
@@ -73,6 +80,12 @@ func parseProxy(proxy string) any {
 		return ssConf(proxy)
 	case strings.HasPrefix(proxy, trojanPrefix):
 		return trojanConf(proxy)
+	case strings.HasPrefix(proxy, httpsPrefix):
+		return httpsConf(proxy)
+	case strings.HasPrefix(proxy, httpPrefix):
+		return httpsConf(proxy)
+	default:
+		fmt.Println(proxy)
 	}
 
 	return nil
@@ -269,51 +282,45 @@ func ssConf(s string) *ClashSS {
 		return nil
 	}
 
-	rawSSRConfig, err := xbase64.Base64DecodeStripped(findStr[1])
+	rawSSRConfig, err := base64.RawStdEncoding.DecodeString(findStr[1])
 	if err != nil {
 		return nil
 	}
 
-	s = strings.ReplaceAll(s, findStr[1], string(rawSSRConfig))
-	findStr = ssReg2.FindStringSubmatch(s)
+	//s = strings.ReplaceAll(s, findStr[1], string(rawSSRConfig))
+	findStr2 := ssReg2.FindStringSubmatch(string(rawSSRConfig))
 
 	ss := &ClashSS{}
 	ss.Type = "ss"
-	ss.Cipher = findStr[1]
-	ss.Password = findStr[2]
-	ss.Server = findStr[3]
-	ss.Port = findStr[4]
-	ss.Name = findStr[6]
+	ss.Cipher = findStr2[1]
+	ss.Password = findStr2[2]
+	ss.Server = findStr2[3]
+	ss.Port = findStr2[4]
 
-	if findStr[5] != "" && strings.Contains(findStr[5], "plugin") {
-		query := findStr[5][strings.Index(findStr[5], "?")+1:]
-		queryMap, err := url.ParseQuery(query)
-		if err != nil {
-			return nil
+	ss.Name = findStr[3]
+
+	query := findStr[2]
+	queryMap, err := url.ParseQuery(findStr[2])
+
+	if err == nil {
+		for k, v := range queryMap {
+			ss.Plugin = k
+			p := new(PluginOpts)
+			switch {
+			case strings.Contains(ss.Plugin, "obfs"):
+				ss.Plugin = "obfs"
+				p.Mode = queryMap["obfs"][0]
+				if strings.Contains(query, "obfs-host=") {
+					p.Host = queryMap["obfs-host"][0]
+				}
+			case ss.Plugin == "v2ray-plugin":
+				pluginData, _ := base64.RawStdEncoding.DecodeString(v[0])
+				json.Unmarshal(pluginData, p)
+				p.SkipCertVerify = true
+			}
+			ss.PluginOpts = p
 		}
 
-		ss.Plugin = queryMap["plugin"][0]
-		p := new(PluginOpts)
-		switch {
-		case strings.Contains(ss.Plugin, "obfs"):
-			ss.Plugin = "obfs"
-			p.Mode = queryMap["obfs"][0]
-			if strings.Contains(query, "obfs-host=") {
-				p.Host = queryMap["obfs-host"][0]
-			}
-		case ss.Plugin == "v2ray-plugin":
-			p.Mode = queryMap["mode"][0]
-			if strings.Contains(query, "host=") {
-				p.Host = queryMap["host"][0]
-			}
-			if strings.Contains(query, "path=") {
-				p.Path = queryMap["path"][0]
-			}
-			p.Mux = strings.Contains(query, "mux")
-			p.Tls = strings.Contains(query, "tls")
-			p.SkipCertVerify = true
-		}
-		ss.PluginOpts = p
 	}
 
 	return ss
@@ -355,4 +362,47 @@ func trojanConf(s string) *Trojan {
 	}
 
 	return nil
+}
+
+func httpsConf(uriString string) *Https {
+
+	s, err := url.PathUnescape(uriString)
+	if err != nil {
+		return nil
+	}
+
+	lists := strings.Split(s, "#")
+	uri, err := url.Parse(lists[0])
+	if err != nil {
+		return nil
+	}
+
+	data, _ := base64.StdEncoding.DecodeString(uri.Host)
+	findStr := httpsReg.FindStringSubmatch(string(data))
+
+	if len(findStr) < 5 {
+		return nil
+	}
+
+	http := &Https{
+		UserName: findStr[1],
+		Password: findStr[2],
+		Type:     "http",
+		Server:   findStr[3],
+		Port:     findStr[4],
+	}
+	if len(lists) == 2 {
+		http.Name = lists[1]
+	} else {
+		http.Name = http.Server
+	}
+	http.Sni = uri.Query().Get("peer")
+	if uri.Query().Get("allowInsecure") == "1" {
+		http.SkipCertVerify = true
+
+	}
+	if uri.Scheme == "https" {
+		http.Tls = true
+	}
+	return http
 }
