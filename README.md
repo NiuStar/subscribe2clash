@@ -18,7 +18,7 @@
 
 Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4SSR)路由规则。  
 
-支持v2ray\trojan\ss\ssr\ssd订阅转换。**暂不支持单节点转换**  
+支持v2ray\trojan\ss\ssr\ssd\Vless\Vmess订阅转换。**支持节点列表转换**  
 
 支持多订阅一起转换，多个订阅连接用英文逗号隔开。
 
@@ -28,8 +28,8 @@ Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4S
 
 - [release](https://subscribe2clash/releases)下载对应的版本
 - 解压后执行`./subscribe2clash`
-- 访问http://localhost:8162/?link=你的订阅链接
-
+- 访问http://localhost:8163/?link=你的订阅链接
+- 访问http://localhost:8163/nodes?node=你的节点链接
 ### 源码编译
 
 - 安装Go 1.20+
@@ -51,7 +51,7 @@ Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4S
 
 
 ### web服务
-启动一个 HTTP 服务，访问 http://localhost:8162/?link=你的订阅链接 即可获取 Clash 配置。
+启动一个 HTTP 服务，访问 http://localhost:8163/?link=你的订阅链接 即可获取 Clash 配置。
 
 - 指定自定义基础配置文件，可在里面添加自定义的路由规则，程序将按照这个文件写入路由信息。可参考[internal/acl/config/default_base_config.yaml](https://subscribe2clash/blob/master/internal/acl/config/default_base_config.yaml) ，`{{.}}`将被程序替换为ACL的路由规则。
 
@@ -78,10 +78,10 @@ Clash配置转换，默认自动获取[ACL4SSR](https://github.com/ACL4SSR/ACL4S
   ./subscribe2clash -proxy http://127.0.0.1:7890
   ```
 
-- 指定服务监听地址，默认监听`127.0.0.1:8162`端口。
+- 指定服务监听地址，默认监听`127.0.0.1:8163`端口。
 
   ```
-  ./subscribe2clash -l 127.0.0.1:8162
+  ./subscribe2clash -l 127.0.0.1:8163
   ```
 
 - 指定更新规则频率，单位小时，默认每6小时拉取一次。

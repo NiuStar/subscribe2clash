@@ -63,7 +63,13 @@ func (cc *ClashController) Self(c *gin.Context) {
 }
 
 func (cc *ClashController) Nodes(c *gin.Context) {
-
+	node, exists := c.GetQuery("node")
+	if !exists {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": "node不能为空",
+		})
+		return
+	}
 	/*
 		nodes, err := model.GetAllNodes()
 		if err != nil {
@@ -73,12 +79,7 @@ func (cc *ClashController) Nodes(c *gin.Context) {
 		}*/
 
 	urls := make([]string, 0)
-	err := c.BindJSON(&urls)
-	if err != nil {
-		c.String(http.StatusBadRequest, "请上传数组json")
-		c.Abort()
-		return
-	}
+	urls = append(urls, node)
 	config, err := clash.Nodes(urls)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
