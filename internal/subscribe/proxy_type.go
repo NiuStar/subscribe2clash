@@ -9,6 +9,17 @@ const (
 	SSRSuffix
 )
 
+/*
+地址（address）:  portainer.mukj.cn
+端口（port）：  443
+[::]:443
+用户 ID（UUID）： a5b1b0a1-6232-4c76-aea0-ab0480fe2fc6
+加密方式（security）： none
+传输协议（network）： ws
+伪装类型（type）： none
+路径（path）： /46019c8aacd9/
+底层传输安全： tls
+*/
 type Vmess struct {
 	Add  string `json:"add"`
 	Aid  any    `json:"aid"`
@@ -141,4 +152,16 @@ type Https struct {
 	Tls            bool   `json:"tls,omitempty"`
 	Port           string `json:"port"`
 	SkipCertVerify bool   `json:"skip-cert-verify"`
+}
+
+type Vless struct {
+	UUID       string `json:"uuid"`
+	Host       string `json:"host"`
+	Path       string `json:"path"`
+	Encryption string `json:"encryption"`
+	Security   string `json:"security"`
+	SNI        string `json:"sni"`
+	Type       string `json:"type"`
+	FP         string `json:"fp"`
+	Port       int    `json:"port"`
 }

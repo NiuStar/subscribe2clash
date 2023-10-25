@@ -17,6 +17,7 @@ import (
 const (
 	ssrPrefix    = "ssr://"
 	vmessPrefix  = "vmess://"
+	vlessPrefix  = "vless://"
 	ssPrefix     = "ss://"
 	trojanPrefix = "trojan://"
 	httpsPrefix  = "https://"
@@ -36,6 +37,11 @@ var (
 )
 
 func ParseProxy(contentSlice []string) []any {
+	defer func() {
+		if err := recover(); err != nil {
+			panic(err)
+		}
+	}()
 	var proxies []any
 	for _, v := range contentSlice {
 		// ssd
@@ -76,6 +82,9 @@ func parseProxy(proxy string) any {
 		return ssrConf(subProtocolBody(proxy, ssrPrefix))
 	case strings.HasPrefix(proxy, vmessPrefix):
 		return v2rConf(subProtocolBody(proxy, vmessPrefix))
+
+	case strings.HasPrefix(proxy, vlessPrefix):
+		return vlessConf(proxy)
 	case strings.HasPrefix(proxy, ssPrefix):
 		return ssConf(proxy)
 	case strings.HasPrefix(proxy, trojanPrefix):
@@ -89,6 +98,63 @@ func parseProxy(proxy string) any {
 	}
 
 	return nil
+}
+func vlessConf(vlessURL string) *ClashVless {
+	u, err := url.Parse(vlessURL)
+	if err != nil {
+		fmt.Println("URL解析失败：", err)
+		return nil
+	}
+
+	// 提取vless链接中的参数
+
+	port, _ := strconv.Atoi(u.Port())
+	if port == 0 {
+		port = 80
+	}
+	vlessConfig := &Vless{
+		UUID:       u.User.Username(),
+		Host:       u.Hostname(),
+		Path:       u.Query().Get("path"),
+		Encryption: u.Query().Get("encryption"),
+		Security:   u.Query().Get("security"),
+		SNI:        u.Query().Get("sni"),
+		Type:       u.Query().Get("type"),
+		FP:         u.Query().Get("fp"),
+		Port:       port,
+	}
+	// 解析vless链接中的名称（#后面的部分）
+	parts := strings.Split(u.Fragment, "#")
+	name := parts[len(parts)-1]
+	clashProxyConfig := &ClashVless{
+		Name:    name,
+		Type:    "vless",
+		Server:  vlessConfig.Host,
+		Port:    vlessConfig.Port,
+		UUID:    vlessConfig.UUID,
+		AlterID: 64, // 根据您的设置进行修改
+		Cipher:  "none",
+		TLS:     true,
+		SNI:     vlessConfig.SNI,
+		Network: vlessConfig.Type,
+		WSPath:  vlessConfig.Path,
+	}
+
+	return clashProxyConfig
+}
+
+type ClashVless struct {
+	Name    string `json:"name"`
+	Type    string `json:"type"`
+	Server  string `json:"server"`
+	Port    int    `json:"port"`
+	UUID    string `json:"uuid"`
+	AlterID int    `json:"alterId"`
+	Cipher  string `json:"cipher"`
+	TLS     bool   `json:"tls"`
+	SNI     string `json:"sni"`
+	Network string `json:"network"`
+	WSPath  string `json:"ws-path"`
 }
 
 func v2rConf(s string) *ClashVmess {

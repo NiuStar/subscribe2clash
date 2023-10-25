@@ -1,8 +1,8 @@
 package api
 
 import (
-	"subscribe2clash/model"
 	"net/http"
+	"subscribe2clash/model"
 
 	"github.com/gin-gonic/gin"
 	"subscribe2clash/internal/clash"
@@ -64,16 +64,20 @@ func (cc *ClashController) Self(c *gin.Context) {
 
 func (cc *ClashController) Nodes(c *gin.Context) {
 
-	nodes, err := model.GetAllNodes()
-	if err != nil {
-		c.String(http.StatusBadRequest, key+"值为空")
-		c.Abort()
-		return
-	}
+	/*
+		nodes, err := model.GetAllNodes()
+		if err != nil {
+			c.String(http.StatusBadRequest, key+"值为空")
+			c.Abort()
+			return
+		}*/
 
 	urls := make([]string, 0)
-	for _, node := range nodes {
-		urls = append(urls, node.Address)
+	err := c.BindJSON(&urls)
+	if err != nil {
+		c.String(http.StatusBadRequest, "请上传数组json")
+		c.Abort()
+		return
 	}
 	config, err := clash.Nodes(urls)
 	if err != nil {
